@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title><DASHBOARD TITLE></title>
+
+      <style>
+         table tr:nth-child(even) {
+            background-color: #ccc;
+         } 
+
+         table tr:nth-child(odd) {
+            background-color: #e8e8ee;
+         } 
+      </style>
+   </head>
+
+
+   <body style="overflow-x:hidden;overflow-y:hidden;" onload="updateTimes();">
+      <script>
+
+      function openwindow() {
+          var url = 'http://' + window.location.host + '/?windowopen=y';
+	  var theWindow=window.open(url, 'Dashboard:<UNIQUE_WINDOW_ID>',  "Height=<HEIGHT>px,Width=150px,toolbar=0,location=0,menubar=0");
+          theWindow.focus();
+      }
+
+      <ENTRIES_DATA>  
+
+      var isChild = window.location.href.indexOf("?");
+      if (isChild > 0) {
+         setInterval(function() {
+            updateTimes();
+         }, 60 * 1000);
+      } else {
+         openwindow();
+         close();
+      }
+
+      function updateTimes() {
+         var utcTime = getUtcTime(new Date());
+         for (var nextEntry in entriesData) {
+            var targetTD = document.getElementById(nextEntry);
+            if (null != targetTD) {
+               targetTD.innerHTML = entryTime(utcTime, entriesData[nextEntry]);
+            }            
+         }
+      }
+    
+      function getUtcTime(localDate) { 
+         var localTime = localDate.getTime();
+         var localOffset = localDate.getTimezoneOffset() * 60 * 1000;
+         return localTime + localOffset;
+      }
+
+
+      function entryTime(utcTime, UTCOffset) {
+         var entryDate = new Date(utcTime + UTCOffset * 60 * 60 * 1000);
+         var hours = entryDate.getHours();
+         var indicator = 'AM';
+         if (hours > 12) {
+            hours = hours - 12;
+            indicator = 'PM'; 
+         } else if ( hours === 12) {
+            indicator = 'PM'; 
+         }
+
+         return hours + ':' + entryDate.getMinutes() + " " + indicator;
+      }
+      </script>
+
+      <table width="100%" style="font-size:15px">
+         <tbody>
+            <DASHBOARD_ENTRIES>
+         </tbody>
+      </table>
+    </body>
+</html>
