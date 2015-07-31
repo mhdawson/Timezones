@@ -55,7 +55,11 @@
 
       function entryTime(utcTime, UTCOffset) {
          var entryDate = new Date(utcTime + UTCOffset * 60 * 60 * 1000);
-         var hours = entryDate.getHours();
+         var hours = entryDate.getHours().toString();
+         var minutes = entryDate.getMinutes().toString();
+         if (minutes.length === 1) {
+            minutes = '0' + minutes;
+         }
          var indicator = 'AM';
          if (hours > 12) {
             hours = hours - 12;
@@ -64,7 +68,7 @@
             indicator = 'PM'; 
          }
 
-         return hours + ':' + entryDate.getMinutes() + " " + indicator;
+         return hours + ':' + minutes + " " + indicator;
       }
       </script>
 
