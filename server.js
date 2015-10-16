@@ -1,5 +1,6 @@
 var http = require('http');
 var fs = require('fs');
+var url = require('url');
 
 // read in the configuration data
 var certsDir = '';
@@ -11,8 +12,19 @@ var topicsArray = [];
 var title = '';
 var height = 0;
 var entriesData = 'var entriesData = new Object();\n';
-function readConfig(configFile) {
-   data = fs.readFileSync(configFile);
+
+function readDefaultConfig(configFile) {
+   var data = fs.readFileSync(configFile);
+   setConfig(data);
+}
+
+function setConfig(data) {
+   options = '';
+   dashBoardEntriesHTML = '';
+   topicsArray = [];
+   height = 0;
+   entriesData = 'var entriesData = new Object();\n';
+
    var lines = data.toString().split('\n');
    for (line in lines) {
       var configParts = lines[line].split('=');
@@ -41,16 +53,28 @@ function readConfig(configFile) {
    }
 }
 
-readConfig(process.argv[2]);
 
 // setup the websocket/server enpoint
-var mainPage = fs.readFileSync('page.html').toString();
-mainPage = mainPage.replace('<DASHBOARD TITLE>', title);
-mainPage = mainPage.replace('<UNIQUE_WINDOW_ID>', title);
-mainPage = mainPage.replace('<DASHBOARD_ENTRIES>', dashBoardEntriesHTML);
-mainPage = mainPage.replace('<ENTRIES_DATA>', entriesData);
-mainPage = mainPage.replace('<HEIGHT>', height);
 var server = http.createServer(function(request,response) {
+   var entries = '';
+   var mainPage = fs.readFileSync('page.html').toString();
+   var dashboardEntries = url.parse(request.url).query;
+   readDefaultConfig(process.argv[2]);
+   if (dashboardEntries != undefined) {
+      dashboardEntries = dashboardEntries.replace("windowopen=y&","").replace("windowopen=y","");
+      if (dashboardEntries!= "") {
+         setConfig("dashboardEntries=" + dashboardEntries);
+         entries = "&" + dashboardEntries;
+      }
+   }
+
+   mainPage = mainPage.replace('<DASHBOARD TITLE>', title);
+   mainPage = mainPage.replace('<UNIQUE_WINDOW_ID>', title);
+   mainPage = mainPage.replace('<DASHBOARD_ENTRIES>', dashBoardEntriesHTML);
+   mainPage = mainPage.replace('<ENTRIES_DATA>', entriesData);
+   mainPage = mainPage.replace('<HEIGHT>', height);
+   mainPage = mainPage.replace('<ENTRIES>', entries);
+
    response.writeHead(200, {'Content-Type': 'text/html'});
    response.end(mainPage);
 });

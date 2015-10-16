@@ -19,14 +19,14 @@
       <script>
 
       function openwindow() {
-          var url = 'http://' + window.location.host + '/?windowopen=y';
+          var url = 'http://' + window.location.host + '/?windowopen=y<ENTRIES>';
 	  var theWindow=window.open(url, 'Dashboard:<UNIQUE_WINDOW_ID>',  "Height=<HEIGHT>px,Width=150px,toolbar=0,location=0,menubar=0");
           theWindow.focus();
       }
 
       <ENTRIES_DATA>  
 
-      var isChild = window.location.href.indexOf("?");
+      var isChild = window.location.href.indexOf("?windowopen");
       if (isChild > 0) {
          setInterval(function() {
             updateTimes();
